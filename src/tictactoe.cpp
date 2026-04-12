@@ -3,13 +3,18 @@
 #include <cctype>
 using namespace std;
 
-void initializeBoard(array<char, 9>& board) {
+TicTacToe::TicTacToe() : currentPlayer('X') {
+    initializeBoard();
+}
+
+void TicTacToe::initializeBoard() {
     for (int i = 0; i < 9; i++) {
         board[i] = '1' + i;
     }
+    currentPlayer = 'X';
 }
 
-void printBoard(const array<char, 9>& board) {
+void TicTacToe::printBoard() const {
     cout << "\n";
     cout << "    " << board[0] << "  |  " << board[1] << "  |  " << board[2] << "\n";
     cout << "  -----+-----+-----\n";
@@ -19,7 +24,7 @@ void printBoard(const array<char, 9>& board) {
     cout << "\n";
 }
 
-bool isDigitsOnly(const string& input) {
+bool TicTacToe::isDigitsOnly(const string& input) const {
     if (input.empty()) {
         return false;
     }
@@ -31,7 +36,7 @@ bool isDigitsOnly(const string& input) {
     return true;
 }
 
-bool isValidMove(const array<char, 9>& board, const string& input, int& move) {
+bool TicTacToe::isValidMove(const string& input, int& move) const {
     if (!isDigitsOnly(input)) {
         return false;
     }
@@ -48,7 +53,11 @@ bool isValidMove(const array<char, 9>& board, const string& input, int& move) {
     return true;
 }
 
-bool checkWin(const array<char, 9>& board, char player) {
+void TicTacToe::applyMove(int move, char player) {
+    board[move - 1] = player;
+}
+
+bool TicTacToe::checkWin(char player) const {
     return
         (board[0] == player && board[1] == player && board[2] == player) ||
         (board[3] == player && board[4] == player && board[5] == player) ||
@@ -60,7 +69,7 @@ bool checkWin(const array<char, 9>& board, char player) {
         (board[2] == player && board[4] == player && board[6] == player);
 }
 
-bool checkDraw(const array<char, 9>& board) {
+bool TicTacToe::checkDraw() const {
     for (char cell : board) {
         if (cell != 'X' && cell != 'O') {
             return false;
@@ -69,109 +78,19 @@ bool checkDraw(const array<char, 9>& board) {
     return true;
 }
 
-bool playAgainPrompt() {
-    string input;
-    while (true) {
-        cout << "Would you like to play again (yes/no)? ";
-        getline(cin, input);
-        if (input == "yes") {
-            return true;
-        }
-        if (input == "no") {
-            return false;
-        }
-        cout << "\nThat is not a valid entry!\n\n";
-    }
-}
-
-// Returns 1 = Human vs Human, 2 = Human vs Computer, 3 = Computer vs Human
-int chooseGameMode() {
-    string input;
-    while (true) {
-        cout << "What kind of game would you like to play?\n";
-        cout << "  1. Human vs. Human\n";
-        cout << "  2. Human vs. Computer\n";
-        cout << "  3. Computer vs. Human\n";
-        cout << "What is your selection? ";
-        getline(cin, input);
-        if (input == "1") {
-            return 1;
-        } else if (input == "2") {
-            return 2;
-        } else if (input == "3") {
-            return 3;
-        } else {
-            cout << "\nThat is not a valid selection! Try again.\n\n";
-        }
-    }
-}
-
-// Computer picks the first available spot on the board
-int computerMove(const array<char, 9>& board) {
+int TicTacToe::computerMove() const {
     for (int i = 0; i < 9; i++) {
         if (board[i] != 'X' && board[i] != 'O') {
-            return i + 1; // return 1-indexed position
+            return i + 1;
         }
     }
-    return -1; // should never reach here during a valid game
+    return -1;
 }
 
-void playGame(int mode) {
-    array<char, 9> board;
-    initializeBoard(board);
-    char currentPlayer = 'X';
+char TicTacToe::getCurrentPlayer() const {
+    return currentPlayer;
+}
 
-    // mode 1: Human vs Human    -> X = human,    O = human
-    // mode 2: Human vs Computer -> X = human,    O = computer
-    // mode 3: Computer vs Human -> X = computer, O = human
-
-    if (mode == 2) {
-        cout << "Great! The computer will go second.\n";
-    } else if (mode == 3) {
-        cout << "Great! The computer will go first.\n";
-    }
-
-    printBoard(board);
-
-    while (true) {
-        bool isComputerTurn =
-            (mode == 2 && currentPlayer == 'O') ||
-            (mode == 3 && currentPlayer == 'X');
-
-        int move = 0;
-
-        if (isComputerTurn) {
-            move = computerMove(board);
-            cout << "Computer plays in spot " << move << ".\n";
-        } else {
-            string input;
-            while (true) {
-                cout << "What is your move? ";
-                getline(cin, input);
-                if (isValidMove(board, input, move)) {
-                    break;
-                }
-                cout << "\nThat is not a valid move! Try again.\n";
-            }
-        }
-
-        board[move - 1] = currentPlayer;
-        printBoard(board);
-
-        if (checkWin(board, currentPlayer)) {
-            if (isComputerTurn) {
-                cout << "Computer wins!\n\n";
-            } else {
-                cout << "Player " << currentPlayer << " wins!\n\n";
-            }
-            break;
-        }
-
-        if (checkDraw(board)) {
-            cout << "It's a draw!\n\n";
-            break;
-        }
-
-        currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-    }
+void TicTacToe::switchPlayer() {
+    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
 }
