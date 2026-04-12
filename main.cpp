@@ -1,7 +1,13 @@
 #include <iostream>
-
 #include "src/tictactoe.hpp"
+using namespace std;
 
 int main() {
-  // Your driver program goes here
+    cout << "Welcome to Tic-Tac-Toe!\n";
+    do {
+        int mode = chooseGameMode();
+        playGame(mode);
+    } while (playAgainPrompt());
+    cout << "\nGoodbye!\n";
+    return 0;
 }
