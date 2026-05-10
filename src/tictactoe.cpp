@@ -1,9 +1,10 @@
 #include "tictactoe.hpp"
 #include <iostream>
 #include <cctype>
+#include <cstdlib>
 using namespace std;
 
-TicTacToe::TicTacToe() : currentPlayer('X') {
+TicTacToe::TicTacToe() : currentPlayer('X'), trapCell(-1) {
     initializeBoard();
 }
 
@@ -12,6 +13,7 @@ void TicTacToe::initializeBoard() {
         board[i] = '1' + i;
     }
     currentPlayer = 'X';
+    trapCell = -1;
 }
 
 void TicTacToe::printBoard() const {
@@ -70,10 +72,9 @@ bool TicTacToe::checkWin(char player) const {
 }
 
 bool TicTacToe::checkDraw() const {
-    for (char cell : board) {
-        if (cell != 'X' && cell != 'O') {
-            return false;
-        }
+    for (int i = 0; i < 9; i++) {
+        if (trapCell != -1 && (i + 1) == trapCell) continue;
+        if (board[i] != 'X' && board[i] != 'O') return false;
     }
     return true;
 }
@@ -93,4 +94,16 @@ char TicTacToe::getCurrentPlayer() const {
 
 void TicTacToe::switchPlayer() {
     currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+}
+
+void TicTacToe::setTrap(int cell) {
+    trapCell = cell;
+}
+
+void TicTacToe::enableTrap() {
+    trapCell = rand() % 9 + 1;
+}
+
+bool TicTacToe::isTrap(int move) const {
+    return trapCell != -1 && move == trapCell;
 }

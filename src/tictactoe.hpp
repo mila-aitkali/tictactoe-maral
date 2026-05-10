@@ -18,10 +18,14 @@ public:
     int computerMove() const;
     char getCurrentPlayer() const;
     void switchPlayer();
+    void setTrap(int cell);
+    void enableTrap();
+    bool isTrap(int move) const;
 
 private:
     std::array<char, 9> board;
     char currentPlayer;
+    int trapCell;
 };
 
 #endif

@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <cstdlib>
+#include <ctime>
 #include "src/tictactoe.hpp"
 using namespace std;
 
@@ -25,6 +27,20 @@ int chooseGameMode() {
     }
 }
 
+bool chooseTrap() {
+    string input;
+    while (true) {
+        cout << "\nWould you like to include a trap cell in your game?\n\n";
+        cout << "1. Yes\n";
+        cout << "2. No\n\n";
+        cout << "What is your selection? ";
+        getline(cin, input);
+        if (input == "1") return true;
+        if (input == "2") return false;
+        cout << "\nThat is not a valid selection! Try again.\n";
+    }
+}
+
 bool playAgainPrompt() {
     string input;
     while (true) {
@@ -40,17 +56,22 @@ bool playAgainPrompt() {
     }
 }
 
-void playGame(int mode) {
+void playGame(int mode, bool wantTrap) {
     TicTacToe game;
 
     // mode 1: Human vs Human    -> X = human,    O = human
     // mode 2: Human vs Computer -> X = human,    O = computer
     // mode 3: Computer vs Human -> X = computer, O = human
 
+    if (wantTrap) {
+        game.enableTrap();
+        cout << "\nGreat! A trap has been hidden on the board.\n";
+    }
+
     if (mode == 2) {
-        cout << "Great! The computer will go second.\n";
+        cout << "\nGreat! The computer will go second.\n";
     } else if (mode == 3) {
-        cout << "Great! The computer will go first.\n";
+        cout << "\nGreat! The computer will go first.\n";
     }
 
     game.printBoard();
@@ -79,6 +100,13 @@ void playGame(int mode) {
             }
         }
 
+        if (game.isTrap(move)) {
+            cout << "\nOh no! You set off the trap! " << current << " loses their turn.\n";
+            game.printBoard();
+            game.switchPlayer();
+            continue;
+        }
+
         game.applyMove(move, current);
         game.printBoard();
 
@@ -92,7 +120,7 @@ void playGame(int mode) {
         }
 
         if (game.checkDraw()) {
-            cout << "It's a draw!\n\n";
+            cout << "It's a draw...\n\n";
             break;
         }
 
@@ -101,10 +129,12 @@ void playGame(int mode) {
 }
 
 int main() {
+    srand(static_cast<unsigned>(time(nullptr)));
     cout << "Welcome to Tic-Tac-Toe!\n";
     do {
         int mode = chooseGameMode();
-        playGame(mode);
+        bool wantTrap = chooseTrap();
+        playGame(mode, wantTrap);
     } while (playAgainPrompt());
     cout << "\nGoodbye!\n";
     return 0;

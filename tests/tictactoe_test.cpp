@@ -128,3 +128,62 @@ TEST_CASE("Player switches correctly") {
     game.switchPlayer();
     REQUIRE(game.getCurrentPlayer() == 'X');
 }
+
+TEST_CASE("No trap by default: isTrap always returns false") {
+    TicTacToe game;
+    REQUIRE_FALSE(game.isTrap(1));
+    REQUIRE_FALSE(game.isTrap(5));
+    REQUIRE_FALSE(game.isTrap(9));
+}
+
+TEST_CASE("Trap cell is detected") {
+    TicTacToe game;
+    game.setTrap(5);
+    REQUIRE(game.isTrap(5));
+}
+
+TEST_CASE("Non-trap cells are not detected as trap") {
+    TicTacToe game;
+    game.setTrap(5);
+    REQUIRE_FALSE(game.isTrap(1));
+    REQUIRE_FALSE(game.isTrap(4));
+    REQUIRE_FALSE(game.isTrap(9));
+}
+
+TEST_CASE("Draw with trap: all non-trap cells filled") {
+    TicTacToe game;
+    game.setTrap(5);
+    // Fill all cells except the trap at 5
+    game.applyMove(1, 'X'); game.applyMove(2, 'O'); game.applyMove(3, 'X');
+    game.applyMove(4, 'X'); /* trap at 5 */         game.applyMove(6, 'O');
+    game.applyMove(7, 'O'); game.applyMove(8, 'X'); game.applyMove(9, 'O');
+    REQUIRE(game.checkDraw());
+}
+
+TEST_CASE("No draw when non-trap cell is empty") {
+    TicTacToe game;
+    game.setTrap(5);
+    // Leave cell 3 empty
+    game.applyMove(1, 'X'); game.applyMove(2, 'O');
+    game.applyMove(4, 'X'); /* trap at 5 */         game.applyMove(6, 'O');
+    game.applyMove(7, 'O'); game.applyMove(8, 'X'); game.applyMove(9, 'O');
+    REQUIRE_FALSE(game.checkDraw());
+}
+
+TEST_CASE("Computer can pick the trap cell") {
+    TicTacToe game;
+    game.setTrap(1);
+    // Fill all cells except trap at 1
+    game.applyMove(2, 'O'); game.applyMove(3, 'X');
+    game.applyMove(4, 'X'); game.applyMove(5, 'O'); game.applyMove(6, 'O');
+    game.applyMove(7, 'O'); game.applyMove(8, 'X'); game.applyMove(9, 'X');
+    REQUIRE(game.computerMove() == 1);
+}
+
+TEST_CASE("Trap cell resets on initializeBoard") {
+    TicTacToe game;
+    game.setTrap(3);
+    REQUIRE(game.isTrap(3));
+    game.initializeBoard();
+    REQUIRE_FALSE(game.isTrap(3));
+}
